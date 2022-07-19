@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Entities;
 using LoggerService;
+using Microsoft.EntityFrameworkCore;
 
 namespace Seguimiento.API.Extensions
 {

@@ -1,3 +1,4 @@
+using Contracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Seguimiento.APi.Controllers
@@ -6,28 +7,19 @@ namespace Seguimiento.APi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        private readonly ILoggerManager _logger;
+        public WeatherForecastController(ILoggerManager logger)
         {
             _logger = logger;
         }
-
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<string> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            _logger.LogInfo("Aquí hay un mensaje de información de registro del controlador.");
+            _logger.LogDebug("Aquí está el mensaje de depuración del controlador.");
+            _logger.LogWarn("Aquí hay un mensaje de advertencia del controlador.");
+            _logger.LogError("Aquí hay un mensaje de error del controlador");
+            return new string[] { "value1", "value2" };
         }
     }
 }
