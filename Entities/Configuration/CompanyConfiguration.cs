@@ -32,4 +32,4 @@ namespace Entities.Configuration
         }
     }
 }
-}
+

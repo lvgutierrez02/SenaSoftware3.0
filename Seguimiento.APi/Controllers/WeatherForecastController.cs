@@ -8,17 +8,22 @@ namespace Seguimiento.APi.Controllers
     public class WeatherForecastController : ControllerBase
     {
         private readonly ILoggerManager _logger;
-        public WeatherForecastController(ILoggerManager logger)
+        private readonly IRepositoryManager _repository;
+        public WeatherForecastController(ILoggerManager logger, IRepositoryManager repository)
         {
             _logger = logger;
+            _repository = repository;
         }
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            _logger.LogInfo("Aquí hay un mensaje de información de registro del controlador.");
-            _logger.LogDebug("Aquí está el mensaje de depuración del controlador.");
-            _logger.LogWarn("Aquí hay un mensaje de advertencia del controlador.");
-            _logger.LogError("Aquí hay un mensaje de error del controlador");
+            _logger.LogInfo("Here is info message from the controller.");
+            _logger.LogDebug("Here is debug message from the controller.");
+            _logger.LogWarn("Here is warn message from the controller.");
+            _logger.LogError("Here is error message from the controller.");
+
+            //_repository.Company.AnyMethodFromCompanyRepository(); 
+            //_repository.Employee.AnyMethodFromEmployeeRepository();
             return new string[] { "value1", "value2" };
         }
     }

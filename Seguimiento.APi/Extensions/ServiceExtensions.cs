@@ -2,6 +2,7 @@
 using Entities;
 using LoggerService;
 using Microsoft.EntityFrameworkCore;
+using Repository;
 
 namespace Seguimiento.API.Extensions
 {
