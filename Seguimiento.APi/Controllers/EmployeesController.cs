@@ -83,5 +83,28 @@ namespace Seguimiento.API.Controllers
             return CreatedAtRoute("GetEmployeeForCompany", new { companyId, id = employeeToReturn.Id }, employeeToReturn);
             //la declaración de devolución, que ahora tiene dos parámetros para el objeto anónimo.
         }
+
+
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteEmployeeForCompany(Guid companyId, Guid id)//Recopilamos el companyId de la ruta raíz y el id del empleado del argumento pasado
+        {
+            var company = _repository.Company.GetCompany(companyId, trackChanges: false);
+            if (company == null)//Tenemos que comprobar si la empresa existe
+            {
+                _logger.LogInfo($"Company with id: {companyId} doesn't exist in the database.");
+                return NotFound();
+            }
+            var employeeForCompany = _repository.Employee.GetEmployee(companyId, id, trackChanges: false); // verificamos la entidad del empleado
+            if (employeeForCompany == null)
+            {
+                _logger.LogInfo($"Employee with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            //eliminamos a nuestro empleado
+            _repository.Employee.DeleteEmployee(employeeForCompany);
+            _repository.Save();//Guardamos cambios
+            return NoContent();//devolvemos el método NoContent(), que devuelve el código de estado 204 Sin contenido (No Content).
+        }
     }
 }

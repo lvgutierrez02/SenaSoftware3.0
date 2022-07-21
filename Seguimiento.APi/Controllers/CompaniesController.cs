@@ -4,6 +4,8 @@ using Entities.DataTransferObjects;
 using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Seguimiento.API.ModelBinders;
 
 namespace Seguimiento.API.Controllers
 {
@@ -85,6 +87,62 @@ namespace Seguimiento.API.Controllers
             //CreatedAtRoute devolverá un código de estado 201, que significa Creado. Además, completará el cuerpo de la respuesta con el nuevo objeto de la empresa,
             //así como el atributo Ubicación dentro del encabezado de la respuesta con la dirección para recuperar esa empresa. Necesitamos proporcionar el nombre de la acción,
             //donde podemos recuperar la entidad creada.
+        }
+
+
+        [HttpGet("collection/({ids})", Name = "CompanyCollection")]
+        public IActionResult GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        {
+            if (ids == null)
+            {
+                _logger.LogError("Parameter ids is null");
+                return BadRequest("Parameter ids is null");
+            }
+            var companyEntities = _repository.Company.GetByIds(ids, trackChanges: false);
+            if (ids.Count() != companyEntities.Count())
+            {
+                _logger.LogError("Some ids are not valid in a collection");
+                return NotFound();
+            }
+            var companiesToReturn = _mapper.Map<IEnumerable<CompanyDto>>(companyEntities);
+            return Ok(companiesToReturn);
+        }
+
+        [HttpPost("collection")]
+        public IActionResult CreateCompanyCollection([FromBody] IEnumerable<CompanyForCreationDto> companyCollection)
+        {
+            if (companyCollection == null)//verificamos si nuestra colección es nula
+            {
+                _logger.LogError("Company collection sent from client is null.");
+                return BadRequest("Company collection is null");//devolvemos una solicitud incorrecta 
+            }
+
+            //mapeamos esa colección y guardamos todos los elementos de la colección en la base de datos
+            var companyEntities = _mapper.Map<IEnumerable<Company>>(companyCollection);
+            foreach (var company in companyEntities)
+            {
+                _repository.Company.CreateCompany(company);
+            }
+            _repository.Save();
+            var companyCollectionToReturn = _mapper.Map<IEnumerable<CompanyDto>>(companyEntities);
+            //tomamos todos los ID como una cadena separada por comas y navegamos a la acción GET para obtener nuestras empresas creadas
+            var ids = string.Join(",", companyCollectionToReturn.Select(c => c.Id));
+            return CreatedAtRoute("CompanyCollection", new { ids }, companyCollectionToReturn);
+        }
+
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCompany(Guid id)
+        {
+            var company = _repository.Company.GetCompany(id, trackChanges: false);
+            if (company == null)
+            {
+                _logger.LogInfo($"Company with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _repository.Company.DeleteCompany(company);
+            _repository.Save();
+            return NoContent();
         }
     }
 }
