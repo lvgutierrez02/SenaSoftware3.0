@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,7 +50,7 @@ namespace Seguimiento.API.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "CompanyById")]
         public IActionResult GetCompany(Guid id) //buscamos una sola company de la base de datos
         {
             var company = _repository.Company.GetCompany(id, trackChanges: false);
@@ -65,6 +66,25 @@ namespace Seguimiento.API.Controllers
                 var companyDto = _mapper.Map<CompanyDto>(company);
                 return Ok(companyDto);
             }
+        }
+
+
+        [HttpPost]
+        public IActionResult CreateCompany([FromBody] CompanyForCreationDto company)//el parámetro de la empresa que proviene del cliente, lo recopilamos del cuerpo de la solicitud.
+        {
+            if (company == null)
+            {
+                _logger.LogError("CompanyForCreationDto object sent from client is null.");
+                return BadRequest("CompanyForCreationDto object is null");
+            }
+            var companyEntity = _mapper.Map<Company>(company);
+            _repository.Company.CreateCompany(companyEntity);// llamamos al método de repositorio para la creación 
+            _repository.Save();// llamamos al método Save() para guardar la entidad en la base de datos.
+            var companyToReturn = _mapper.Map<CompanyDto>(companyEntity);//asignamos la entidad de la empresa al objeto DTO de la empresa para devolverlo al cliente.
+            return CreatedAtRoute("CompanyById", new { id = companyToReturn.Id }, companyToReturn);
+            //CreatedAtRoute devolverá un código de estado 201, que significa Creado. Además, completará el cuerpo de la respuesta con el nuevo objeto de la empresa,
+            //así como el atributo Ubicación dentro del encabezado de la respuesta con la dirección para recuperar esa empresa. Necesitamos proporcionar el nombre de la acción,
+            //donde podemos recuperar la entidad creada.
         }
     }
 }

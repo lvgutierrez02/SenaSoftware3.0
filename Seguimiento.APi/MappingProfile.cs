@@ -14,7 +14,9 @@ namespace Seguimiento.API
             //Debido a que tenemos la propiedad FullAddress en nuestra clase DTO, que contiene tanto la direccióN (Address) como el país (Country) de la clase modelo,
             //debemos especificar reglas de mapeo adicionales con el método ForMember.
 
+            CreateMap<CompanyForCreationDto, Company>();
             CreateMap<Employee, EmployeeDto>();
+            CreateMap<EmployeeForCreationDto, Employee>();
         }
     }
 }
