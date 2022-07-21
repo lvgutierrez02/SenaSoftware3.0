@@ -86,6 +86,41 @@ namespace Seguimiento.API.Controllers
 
 
 
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateEmployeeForCompany(Guid companyId, Guid id, [FromBody] EmployeeForUpdateDto employee)
+        {
+            if (employee == null)
+            {
+                _logger.LogError("EmployeeForUpdateDto object sent from client is null.");
+                return BadRequest("EmployeeForUpdateDto object is null");
+            }
+            var company = _repository.Company.GetCompany(companyId, trackChanges: false);
+            if (company == null)
+            {
+                _logger.LogInfo($"Company with id: {companyId} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            //El parámetro trackChanges se establece en true para employeeEntity. Eso es porque queremos que EF Core realice un seguimiento de los cambios 
+            //en esta entidad. Esto significa que tan pronto como cambiemos cualquier propiedad en esta entidad, EF Core establecerá el estado de esa entidad 
+            //en Modificado
+
+            var employeeEntity = _repository.Employee.GetEmployee(companyId, id, trackChanges: true);
+            if (employeeEntity == null)
+            {
+                _logger.LogInfo($"Employee with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _mapper.Map(employee, employeeEntity);// cambiando así el estado del objeto employeeEntity a Modificado
+            //Debido a que nuestra entidad tiene un estado modificado, basta con llamar al método Save sin ninguna acción de actualización adicional.
+            //Tan pronto como llamemos al método Guardar, nuestra entidad se actualizará en la base de datos.
+            _repository.Save();
+            return NoContent();// devolvemos el estado 204 NoContent.
+        }
+
+
+
         [HttpDelete("{id}")]
         public IActionResult DeleteEmployeeForCompany(Guid companyId, Guid id)//Recopilamos el companyId de la ruta raíz y el id del empleado del argumento pasado
         {
