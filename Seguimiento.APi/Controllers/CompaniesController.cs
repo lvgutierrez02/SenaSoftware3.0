@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
@@ -19,14 +20,15 @@ namespace Seguimiento.API.Controllers
         private readonly IMapper _mapper;
         public CompaniesController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
         {
-            _repository = repository; 
+            _repository = repository;
             _logger = logger;
             _mapper = mapper;
         }
-        [HttpGet]
+
+        [HttpGet(Name = "GetCompanies"), Authorize]
         public IActionResult GetCompanies()
         {
-            
+
             var companies = _repository.Company.GetAllCompanies(trackChanges: false);
             var companiesDto = _mapper.Map<IEnumerable<CompanyDto>>(companies);
             return Ok(companiesDto);
@@ -42,7 +44,7 @@ namespace Seguimiento.API.Controllers
             //    //consulta AutoMapper
             //    var companiesDto = _mapper.Map<IEnumerable<CompanyDto>>(companies);
             //    return Ok(companiesDto);// devuelve todas las empresas y también el código de estado 200, que significa OK
-  
+
             //}
             //catch (Exception ex)
             //{
@@ -52,7 +54,7 @@ namespace Seguimiento.API.Controllers
         }
 
 
-        [HttpGet("{id}", Name = "CompanyById")]
+        [HttpGet(Name = "GetCompanies"), Authorize]
         public IActionResult GetCompany(Guid id) //buscamos una sola company de la base de datos
         {
             var company = _repository.Company.GetCompany(id, trackChanges: false);
@@ -69,6 +71,11 @@ namespace Seguimiento.API.Controllers
                 return Ok(companyDto);
             }
         }
+
+
+
+
+        
 
 
         [HttpPost]
