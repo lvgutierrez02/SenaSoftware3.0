@@ -16,7 +16,7 @@ namespace Entities.Models
         [Required(ErrorMessage = "El nombre de la empresa es un campo obligatorio.")] //declara la propiedad como obligatoria y está aquí para fines de validación
         [MaxLength(60, ErrorMessage = "La longitud máxima del nombre es de 60 caracteres.")] //define su longitud máxima y está aquí para fines de validación
         public string Name { get; set; }
-        [Required(ErrorMessage = "CLa dirección de la empresa es un campo obligatorio.")]
+        [Required(ErrorMessage = "La dirección de la empresa es un campo obligatorio.")]
         [MaxLength(60, ErrorMessage = "La longitud máxima de la dirección es de 60 caracteres")]
         public string Address { get; set; }
         public string Country { get; set; }

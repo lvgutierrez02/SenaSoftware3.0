@@ -2,6 +2,7 @@
 
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using NLog; //NLog es una plataforma de registro para .NET que nos ayudará a crear y registrar nuestros mensajes
 using Seguimiento.API.Extensions;
 
@@ -24,8 +25,12 @@ builder.Services.ConfigureRepositoryManager(); //Se agrega el admin repository c
 
 builder.Services.AddAutoMapper(typeof(Program));
 
-
-
+//estamos suprimiendo una validación de estado de modelo predeterminada que se implementa debido
+//a la existencia del atributo [ApiController] en todos los controladores API
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 //builder.Services.AddControllers(config => //Anula la configuracion donde formatea una respuesta a JSON
 //{
