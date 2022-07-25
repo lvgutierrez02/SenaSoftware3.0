@@ -62,9 +62,8 @@ namespace Seguimiento.API.Extensions
             );
             builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole),
                 builder.Services);
-            builder.AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+            builder.AddEntityFrameworkStores<RepositoryContext>().AddDefaultTokenProviders();
         }
-
 
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {

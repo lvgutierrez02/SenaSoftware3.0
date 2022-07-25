@@ -54,7 +54,7 @@ namespace Seguimiento.API.Controllers
         }
 
 
-        [HttpGet(Name = "GetCompanies"), Authorize]
+        [HttpGet("{id}", Name = "CompanyById")]
         public IActionResult GetCompany(Guid id) //buscamos una sola company de la base de datos
         {
             var company = _repository.Company.GetCompany(id, trackChanges: false);

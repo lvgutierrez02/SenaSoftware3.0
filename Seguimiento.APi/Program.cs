@@ -6,7 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using NLog; //NLog es una plataforma de registro para .NET que nos ayudará a crear y registrar nuestros mensajes
 using Seguimiento.API.Extensions;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
 
 LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config")); // logger para cargar el archivo
 
@@ -55,8 +59,6 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 
-builder.Services.AddAuthentication();
-builder.Services.ConfigureIdentity();
 
 
 // Configure the HTTP request pipeline.
