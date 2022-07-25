@@ -88,5 +88,11 @@ namespace Seguimiento.API.Extensions
                 };
             });
         }
+
+        public static void ConfigureAuthenticationManagerService(this IServiceCollection services)
+        {
+            services.AddScoped<IAuthenticationManager, AuthenticationManager>();
+
+        }
     }
 }

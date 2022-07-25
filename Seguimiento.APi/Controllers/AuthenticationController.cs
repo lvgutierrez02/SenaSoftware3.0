@@ -15,11 +15,14 @@ namespace Seguimiento.API.Controllers
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        public AuthenticationController(ILoggerManager logger, IMapper mapper, UserManager<User> userManager)
+        private readonly IAuthenticationManager _authenticationManager;
+        public AuthenticationController(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IAuthenticationManager authManager)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
+            _authenticationManager = authManager;   
+
         }
 
 
@@ -42,6 +45,18 @@ namespace Seguimiento.API.Controllers
             }
             await _userManager.AddToRolesAsync(user, userForRegistration.Roles); //si se crea un usuario, lo conectamos a sus roles, el predeterminado o los enviados desde el lado del cliente
             return StatusCode(201);//devolvemos 201 creado.
+        }
+
+
+        [HttpPost("login")] //[ServiceFilter(typeof(ValidationFilterAttribute))] 
+        public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto user)
+        {
+            if (!await _authenticationManager.ValidateUser(user))
+            {
+                _logger.LogWarn($"{nameof(Authenticate)}: Authentication failed. Wrong user name or password.");
+                return Unauthorized();
+            }
+            return Ok(new { Token = await _authenticationManager.CreateToken() });
         }
     }
 }
