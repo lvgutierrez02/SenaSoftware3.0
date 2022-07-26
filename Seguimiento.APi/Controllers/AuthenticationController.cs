@@ -54,9 +54,9 @@ namespace Seguimiento.API.Controllers
             if (!await _authenticationManager.ValidateUser(user))
             {
                 _logger.LogWarn($"{nameof(Authenticate)}: Authentication failed. Wrong user name or password.");
-                return Unauthorized();
+                return Unauthorized();//devolvemos la respuesta 401 no autorizada
             }
-            return Ok(new { Token = await _authenticationManager.CreateToken() });
+            return Ok(new { Token = await _authenticationManager.CreateToken() });// devolvemos nuestro token creado
         }
     }
 }

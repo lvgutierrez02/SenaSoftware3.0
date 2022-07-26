@@ -32,6 +32,7 @@ builder.Services.ConfigureRepositoryManager(); //Se agrega el admin repository c
 builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.ConfigureJWT(configuration);
+builder.Services.ConfigureAuthenticationManagerService();
 
 //estamos suprimiendo una validación de estado de modelo predeterminada que se implementa debido
 //a la existencia del atributo [ApiController] en todos los controladores API
