@@ -25,11 +25,11 @@ namespace Seguimiento.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet(Name = "GetCompanies"), Authorize]
-        public IActionResult GetCompanies()
+        [HttpGet(Name = "GetCompanies"), Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetCompanies()
         {
 
-            var companies = _repository.Company.GetAllCompanies(trackChanges: false);
+            var companies = await _repository.Company.GetAllCompaniesAsync(trackChanges: false);
             var companiesDto = _mapper.Map<IEnumerable<CompanyDto>>(companies);
             return Ok(companiesDto);
 
@@ -55,9 +55,9 @@ namespace Seguimiento.API.Controllers
 
 
         [HttpGet("{id}", Name = "CompanyById")]
-        public IActionResult GetCompany(Guid id) //buscamos una sola company de la base de datos
+        public async  Task<IActionResult> GetCompany(Guid id) //buscamos una sola company de la base de datos
         {
-            var company = _repository.Company.GetCompany(id, trackChanges: false);
+            var company = await _repository.Company.GetCompanyAsync(id, trackChanges: false);
             if (company == null)
             {
                 //Si no existe, usamos el método NotFound para devolver un código de estado 404
@@ -79,7 +79,7 @@ namespace Seguimiento.API.Controllers
 
 
         [HttpPost]
-        public IActionResult CreateCompany([FromBody] CompanyForCreationDto company)//el parámetro de la empresa que proviene del cliente, lo recopilamos del cuerpo de la solicitud.
+        public async  Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)//el parámetro de la empresa que proviene del cliente, lo recopilamos del cuerpo de la solicitud.
         {
             if (company == null)
             {
@@ -88,7 +88,7 @@ namespace Seguimiento.API.Controllers
             }
             var companyEntity = _mapper.Map<Company>(company);
             _repository.Company.CreateCompany(companyEntity);// llamamos al método de repositorio para la creación 
-            _repository.Save();// llamamos al método Save() para guardar la entidad en la base de datos.
+            _repository.SaveAsync();// llamamos al método Save() para guardar la entidad en la base de datos.
             var companyToReturn = _mapper.Map<CompanyDto>(companyEntity);//asignamos la entidad de la empresa al objeto DTO de la empresa para devolverlo al cliente.
             return CreatedAtRoute("CompanyById", new { id = companyToReturn.Id }, companyToReturn);
             //CreatedAtRoute devolverá un código de estado 201, que significa Creado. Además, completará el cuerpo de la respuesta con el nuevo objeto de la empresa,
@@ -98,14 +98,14 @@ namespace Seguimiento.API.Controllers
 
 
         [HttpGet("collection/({ids})", Name = "CompanyCollection")]
-        public IActionResult GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
             if (ids == null)
             {
                 _logger.LogError("Parameter ids is null");
                 return BadRequest("Parameter ids is null");
             }
-            var companyEntities = _repository.Company.GetByIds(ids, trackChanges: false);
+            var companyEntities = await _repository.Company.GetByIdsAsync(ids, trackChanges: false);
             if (ids.Count() != companyEntities.Count())
             {
                 _logger.LogError("Some ids are not valid in a collection");
@@ -116,7 +116,7 @@ namespace Seguimiento.API.Controllers
         }
 
         [HttpPost("collection")]
-        public IActionResult CreateCompanyCollection([FromBody] IEnumerable<CompanyForCreationDto> companyCollection)
+        public async Task<IActionResult> CreateCompanyCollection([FromBody] IEnumerable<CompanyForCreationDto> companyCollection)
         {
             if (companyCollection == null)//verificamos si nuestra colección es nula
             {
@@ -130,7 +130,7 @@ namespace Seguimiento.API.Controllers
             {
                 _repository.Company.CreateCompany(company);
             }
-            _repository.Save();
+            await _repository.SaveAsync();
             var companyCollectionToReturn = _mapper.Map<IEnumerable<CompanyDto>>(companyEntities);
             //tomamos todos los ID como una cadena separada por comas y navegamos a la acción GET para obtener nuestras empresas creadas
             var ids = string.Join(",", companyCollectionToReturn.Select(c => c.Id));
@@ -139,16 +139,16 @@ namespace Seguimiento.API.Controllers
 
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteCompany(Guid id)
+        public async Task<IActionResult> DeleteCompany(Guid id)
         {
-            var company = _repository.Company.GetCompany(id, trackChanges: false);
+            var company = await _repository.Company.GetCompanyAsync(id, trackChanges: false);
             if (company == null)
             {
                 _logger.LogInfo($"Company with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _repository.Company.DeleteCompany(company);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
     }
